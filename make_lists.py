@@ -3,7 +3,7 @@
 import sys
 try:
    from openpyxl import load_workbook
-   import PyPDF4
+   # import PyPDF4
 except Exception as e:
    print(e)
    sys.exit(1)
@@ -11,13 +11,13 @@ except Exception as e:
 import argparse
 from pathlib import Path
 
-from collections import NamedTuple
+from typing import NamedTuple  #not to be confused with namedtuple in collections
 class Caller_lists(NamedTuple):
     success: bool = False
     message: str = ''
-    caller_list_array: list = []
+    caller_mapping_dict: dict = {}
     no_guest_list_array: list = []
-
+    guest_dict: dict = {}
 
 def make_guests_per_caller_lists(in_filename):
    # returns the tuple Caller_lists
@@ -72,25 +72,25 @@ def make_guests_per_caller_lists(in_filename):
    '''
    guest_dict={'Guest1': {'First': 'Guest', 'Last': 1.0, 'PW': 'secret', 'Town': 'Newbury', 'Phone': '978.555.0000', 'Notes': 'call early'}, 'Guest2': {'First': 'Guest', 'Last': 2.0, 'PW': 'secret', 'Town': 'Newbury', 'Phone': '978.555.0000', 'Notes': 'call 3 times'}, 'Guest3': {'First': 'Guest', 'Last': 3.0, 'PW': 'secret', 'Town': 'Newbury', 'Phone': '978.555.0000', 'Notes': 'call late'}}
    '''
+   Caller_lists.guest_dict = guest_dict
 
    callers_with_no_guests = []
    for caller, guests in mapping_dict.items():
       if len(guests) == 0:
          callers_with_no_guests.append(caller)
-      else:
-         print(f"{caller}:") # {guests=}")
-         for guest_id_note in guests:
-            this_guest= guest_dict[guest_id_note[0]]
-            if guest_id_note[1] is not None:
-               this_weeks_guest_note = guest_id_note[1]
-            else:
-               this_weeks_guest_note = ''
-            print(f"\t{this_guest['First']}\t{this_guest['Last']}\t{guest_id_note[0]}\
-\t{this_guest['PW']}\t{this_weeks_guest_note}\t{this_guest['Town']}\t{this_guest['Phone']}\t{this_guest['Notes']}")
+#       else:
+#          print(f"{caller}:") # {guests=}")
+#          for guest_id_note in guests:
+#             this_guest= guest_dict[guest_id_note[0]]
+#             if guest_id_note[1] is not None:
+#                this_weeks_guest_note = guest_id_note[1]
+#             else:
+#                this_weeks_guest_note = ''
+#             print(f"\t{this_guest['First']}\t{this_guest['Last']}\t{guest_id_note[0]}\
+# \t{this_guest['PW']}\t{this_weeks_guest_note}\t{this_guest['Town']}\t{this_guest['Phone']}\t{this_guest['Notes']}")
    
    Caller_lists.no_guest_list_array = callers_with_no_guests
-   # print(f"These callers have no guests: {callers_with_no_guests}")
-
+   Caller_lists.caller_mapping_dict = mapping_dict
    Caller_lists.success = True
 
    return Caller_lists
@@ -111,9 +111,9 @@ if __name__ == "__main__":
       sys.exit("file selected is not a file.")
 
    Caller_lists = make_guests_per_caller_lists(filename)
-   # print(f"{Caller_lists=}")
    if Caller_lists.success:
-      print(f"Success: {Caller_lists.message}")
+      print(f"Success.")
+      print(f"Callers with no guests: {Caller_lists.no_guest_list_array}")
    else:
       print(f"Failure: {Caller_lists.message}")
 
