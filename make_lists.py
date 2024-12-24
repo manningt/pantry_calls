@@ -11,7 +11,18 @@ except Exception as e:
 import argparse
 from pathlib import Path
 
-def make_assignments(in_filename):
+from collections import NamedTuple
+class Caller_lists(NamedTuple):
+    success: bool = False
+    message: str = ''
+    caller_list_array: list = []
+    no_guest_list_array: list = []
+
+
+def make_guests_per_caller_lists(in_filename):
+   # returns the tuple Caller_lists
+
+   Caller_lists()
 
    workbook = load_workbook(in_filename, data_only=True)
    sheetnames = workbook.sheetnames
@@ -19,8 +30,9 @@ def make_assignments(in_filename):
 
    EXPECTED_SHEETNAMES = ['guest-to-caller', 'callers', 'guests']
    if sheetnames != EXPECTED_SHEETNAMES:
-      print("Error: expected '{EXPECTED_SHEETNAMES}' sheet names; found '{workbook.sheetnames}' in file '{in_filename}'")
-      return False
+      Caller_lists.message = f"Error: expected '{EXPECTED_SHEETNAMES}' sheet names; found '{workbook.sheetnames}' in file '{in_filename}'"
+      # print("Error: expected '{EXPECTED_SHEETNAMES}' sheet names; found '{workbook.sheetnames}' in file '{in_filename}'")
+      return Caller_lists
 
    #make dictionary of caller, [guests]
    mapping_dict = {}
@@ -76,9 +88,12 @@ def make_assignments(in_filename):
             print(f"\t{this_guest['First']}\t{this_guest['Last']}\t{guest_id_note[0]}\
 \t{this_guest['PW']}\t{this_weeks_guest_note}\t{this_guest['Town']}\t{this_guest['Phone']}\t{this_guest['Notes']}")
    
-   print(f"These callers have no guests: {callers_with_no_guests}")
+   Caller_lists.no_guest_list_array = callers_with_no_guests
+   # print(f"These callers have no guests: {callers_with_no_guests}")
 
-   return True
+   Caller_lists.success = True
+
+   return Caller_lists
 
 
 if __name__ == "__main__":
@@ -95,8 +110,10 @@ if __name__ == "__main__":
    else:
       sys.exit("file selected is not a file.")
 
-   rc = make_assignments(filename)
+   Caller_lists = make_guests_per_caller_lists(filename)
+   # print(f"{Caller_lists=}")
+   if Caller_lists.success:
+      print(f"Success: {Caller_lists.message}")
+   else:
+      print(f"Failure: {Caller_lists.message}")
 
-   if rc:
-      print(f"generated report")
-      
