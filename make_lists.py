@@ -102,9 +102,9 @@ def make_caller_pdfs(caller_mapping_dict, guest_dict):
       pdf.cell(0, 10, f"{caller} - Friday, Dec 27", align="C")
       pdf.ln(10)
 
-      with pdf.table(col_widths=(12,20,20,14,14,14,30)) as table:
+      with pdf.table(col_widths=(11,13,14,13,13,14,15,30)) as table:
          pdf.set_font("Helvetica", size=12)
-         header = ['First', 'Last', 'UserName', 'Password', 'Town', 'Phone', 'Notes']
+         header = ['First', 'Last', 'UserName', 'Password', 'Town', 'Phone', 'Caller notes', 'Notes about guest']
          row = table.row()
          for column in header:
             row.cell(column)
@@ -115,7 +115,8 @@ def make_caller_pdfs(caller_mapping_dict, guest_dict):
             if this_weeks_guest_note is None:
                this_weeks_guest_note = ''
             row_data = [this_guest['First'], this_guest['Last'], guest_id_note[0], \
-                        this_guest['PW'], this_guest['Town'], this_guest['Phone'], this_weeks_guest_note]
+                        this_guest['PW'], this_guest['Town'], this_guest['Phone'], \
+                        this_weeks_guest_note, this_guest['Notes']]
             row = table.row()
             for item in row_data:
                row.cell(str(item))
