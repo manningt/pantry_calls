@@ -3,7 +3,7 @@
 import sys
 try:
    from openpyxl import load_workbook
-   # import PyPDF4
+   from fpdf import FPDF
 except Exception as e:
    print(e)
    sys.exit(1)
@@ -94,16 +94,34 @@ def make_guests_per_caller_lists(in_filename):
 
 
 def make_caller_pdfs(caller_mapping_dict, guest_dict):
+   # PDF writing example: https://medium.com/@mahijain9211/creating-a-python-class-for-generating-pdf-tables-from-a-pandas-dataframe-using-fpdf2-c0eb4b88355c
    for caller, guests in caller_mapping_dict.items():
-      print(f"{caller}:") # {guests=}")
-      for guest_id_note in guests:
-         this_guest= guest_dict[guest_id_note[0]]
-         if guest_id_note[1] is not None:
+      pdf = FPDF()
+      pdf.add_page()
+      pdf.set_font("helvetica", size=16)
+      pdf.cell(0, 10, f"{caller} - Friday, Dec 27", align="C")
+      pdf.ln(10)
+
+      with pdf.table() as table:
+         pdf.set_font("helvetica", size=12)
+         header = ['First', 'Last', 'UserName', 'PW', 'Town', 'Phone', 'Notes']
+         row = table.row()
+         for column in header:
+            row.cell(column)
+
+         pdf.set_font("helvetica", size=10)
+         for guest_id_note in guests:
+            this_guest = guest_dict[guest_id_note[0]]
             this_weeks_guest_note = guest_id_note[1]
-         else:
-            this_weeks_guest_note = ''
-         print(f"\t{this_guest['First']}\t{this_guest['Last']}\t{guest_id_note[0]}\
-\t{this_guest['PW']}\t{this_weeks_guest_note}\t{this_guest['Town']}\t{this_guest['Phone']}\t{this_guest['Notes']}")
+            if this_weeks_guest_note is None:
+               this_weeks_guest_note = ''
+            row_data = [this_guest['First'], this_guest['Last'], guest_id_note[0], \
+                        this_guest['PW'], this_guest['Town'], this_guest['Phone'], this_weeks_guest_note]
+            row = table.row()
+            for item in row_data:
+               row.cell(str(item))
+
+      pdf.output(f"{caller}.pdf")
 
 
 if __name__ == "__main__":
