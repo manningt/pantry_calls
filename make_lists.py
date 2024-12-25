@@ -102,8 +102,8 @@ def make_caller_pdfs(caller_mapping_dict, guest_dict):
       pdf.cell(0, 10, f"{caller} - Friday, Dec 27", align="C")
       pdf.ln(10)
 
-      with pdf.table(col_widths=(11,13,14,13,13,14,15,30)) as table:
-         pdf.set_font("Helvetica", size=12)
+      with pdf.table(col_widths=(11,13,14,13,13,14,14,30), line_height=6) as table:
+         pdf.set_font(size=12)
          header = ['First', 'Last', 'UserName', 'Password', 'Town', 'Phone', 'Caller notes', 'Notes about guest']
          row = table.row()
          for column in header:
