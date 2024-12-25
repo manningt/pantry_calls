@@ -96,20 +96,19 @@ def make_guests_per_caller_lists(in_filename):
 def make_caller_pdfs(caller_mapping_dict, guest_dict):
    # PDF writing example: https://medium.com/@mahijain9211/creating-a-python-class-for-generating-pdf-tables-from-a-pandas-dataframe-using-fpdf2-c0eb4b88355c
    for caller, guests in caller_mapping_dict.items():
-      pdf = FPDF()
+      pdf = FPDF(orientation="L", format="letter") # default units are mm; adding , unit="in" inserts blank pages
       pdf.add_page()
-      pdf.set_font("helvetica", size=16)
+      pdf.set_font("Helvetica", size=14)
       pdf.cell(0, 10, f"{caller} - Friday, Dec 27", align="C")
       pdf.ln(10)
 
-      with pdf.table() as table:
-         pdf.set_font("helvetica", size=12)
-         header = ['First', 'Last', 'UserName', 'PW', 'Town', 'Phone', 'Notes']
+      with pdf.table(col_widths=(12,20,20,14,14,14,30)) as table:
+         pdf.set_font("Helvetica", size=12)
+         header = ['First', 'Last', 'UserName', 'Password', 'Town', 'Phone', 'Notes']
          row = table.row()
          for column in header:
             row.cell(column)
 
-         pdf.set_font("helvetica", size=10)
          for guest_id_note in guests:
             this_guest = guest_dict[guest_id_note[0]]
             this_weeks_guest_note = guest_id_note[1]
@@ -122,7 +121,7 @@ def make_caller_pdfs(caller_mapping_dict, guest_dict):
                row.cell(str(item))
 
       pdf.output(f"{caller}.pdf")
-
+      # break
 
 if __name__ == "__main__":
    argParser = argparse.ArgumentParser()
