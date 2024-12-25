@@ -119,7 +119,7 @@ def make_caller_pdfs(caller_mapping_dict, guest_dict):
                         this_weeks_guest_note, this_guest['Notes']]
             row = table.row()
             for item in row_data:
-               row.cell(str(item))
+               row.cell(str(item), v_align="T")
 
       pdf.output(f"{caller}.pdf")
       # break
