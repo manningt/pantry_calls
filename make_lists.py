@@ -1,4 +1,15 @@
 #!/usr/bin/env python3
+'''
+2 functions:
+1. make_guests_per_caller_lists(in_filename) -> Caller_lists
+2. make_caller_pdfs(caller_mapping_dict, guest_dict, date_str)
+
+The input file is an Excel file with 3 sheets: 'guest-to-caller', 'callers', 'guests'
+See class definition below for the NamedTuple Caller_lists returned by make_guests_per_caller_lists(in_filename)
+
+The output is a PDF file for each caller with a list of guests for the next Friday.
+
+'''
 
 import sys
 try:
@@ -93,13 +104,13 @@ def make_guests_per_caller_lists(in_filename):
    return Caller_lists
 
 
-def make_caller_pdfs(caller_mapping_dict, guest_dict):
+def make_caller_pdfs(caller_mapping_dict, guest_dict, date_str):
    # PDF writing example: https://medium.com/@mahijain9211/creating-a-python-class-for-generating-pdf-tables-from-a-pandas-dataframe-using-fpdf2-c0eb4b88355c
    for caller, guests in caller_mapping_dict.items():
       pdf = FPDF(orientation="L", format="letter") # default units are mm; adding , unit="in" inserts blank pages
       pdf.add_page()
       pdf.set_font("Helvetica", size=14)
-      pdf.cell(0, 10, f"{caller} - Friday, Dec 27", align="C")
+      pdf.cell(0, 10, f"{caller} - Friday, {date_str}", align="C")
       pdf.ln(10)
 
       with pdf.table(col_widths=(11,13,14,13,13,14,14,30), line_height=6) as table:
@@ -121,8 +132,23 @@ def make_caller_pdfs(caller_mapping_dict, guest_dict):
             for item in row_data:
                row.cell(str(item), v_align="T")
 
-      pdf.output(f"{caller}.pdf")
+      pdf.output(f"{caller}_{date_str}.pdf")
       # break
+
+
+def get_fridays_date_string():
+   import datetime
+   today = datetime.date.today()
+   # print(f"{today.weekday()=}")
+   # Sunday is 6, Monday is 0, Tuesday is 1, Wednesday is 2, Thursday is 3, Friday is 4, Saturday is 5
+   # find the next Friday
+   days_ahead = 4 - today.weekday()
+   if days_ahead <= 0: # Target day already happened this week
+      days_ahead += 7
+   # print(f"{days_ahead=}")
+   target_date = today + datetime.timedelta(days=days_ahead)
+   return target_date.strftime('%Y_%m_%d')
+
 
 if __name__ == "__main__":
    argParser = argparse.ArgumentParser()
@@ -143,8 +169,8 @@ if __name__ == "__main__":
       print(f"Failure: {Caller_lists.message}")
       sys.exit(1)
 
-   make_caller_pdfs(Caller_lists.caller_mapping_dict, Caller_lists.guest_dict)
+   date_str = get_fridays_date_string()
+
+   make_caller_pdfs(Caller_lists.caller_mapping_dict, Caller_lists.guest_dict, date_str)
    
    # print(f"Callers with no guests: {Caller_lists.no_guest_list}")
-   # print(f"Guest info: {Caller_lists.guest_dict}")
-   # print(f"Guest per caller: {Caller_lists.caller_mapping_dict}")
